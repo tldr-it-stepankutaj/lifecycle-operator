@@ -1,114 +1,113 @@
-# lifecycle-operator
-// TODO(user): Add simple overview of use/purpose
+# Operator Lifecycle Operator
 
-## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+**Operator Lifecycle Operator** je vlastní Kubernetes (OpenShift) operátor, který spravuje životní cyklus ostatních operátorů ve vašem clusteru. Umožňuje sledovat, detekovat nové verze a volitelně provádět automatický nebo manuální upgrade.
 
-## Getting Started
+---
 
-### Prerequisites
-- go version v1.22.0+
-- docker version 17.03+.
-- kubectl version v1.11.3+.
-- Access to a Kubernetes v1.11.3+ cluster.
+## ✨ Funkce
 
-### To Deploy on the cluster
-**Build and push your image to the location specified by `IMG`:**
+- 📦 Sledování `Subscription` pro určené operátory
+- 🔍 Detekce nové verze pomocí `PackageManifest` z `CatalogSource`
+- 🚀 Automatický upgrade (`autoUpgrade: true`)
+- 📬 Webhook notifikace při nové verzi
+- 📤 Podpora ručního upgradu pomocí CRD `OperatorUpgradeRequest`
+- 🔧 CLI nástroj `oc-lifecycle` (Cobra-based)
+- 🖥️ Možná integrace s OpenShift Console Pluginem (volitelné)
 
-```sh
-make docker-build docker-push IMG=<some-registry>/lifecycle-operator:tag
+---
+
+## 🚀 Rychlý start
+
+### 1. Vytvoření projektu
+
+```bash
+operator-sdk init --domain tldr.cloud --repo github.com/tldr-it-stepankutaj/lifecycle-operator
+operator-sdk create api --group lifecycle --version v1alpha1 --kind WatchedOperator --resource --controller
+operator-sdk create api --group lifecycle --version v1alpha1 --kind OperatorUpgradeRequest --resource --controller
 ```
 
-**NOTE:** This image ought to be published in the personal registry you specified.
-And it is required to have access to pull the image from the working environment.
-Make sure you have the proper permission to the registry if the above commands don’t work.
+### 2. Instalace závislostí
 
-**Install the CRDs into the cluster:**
+```bash
+go get github.com/operator-framework/api@v0.29.1
+go get github.com/operator-framework/operator-lifecycle-manager@v0.26.0
+go mod tidy
+```
 
-```sh
+---
+
+## 📄 CRD Příklady
+
+### `WatchedOperator`
+
+```yaml
+apiVersion: lifecycle.tldr.cloud/v1alpha1
+kind: WatchedOperator
+metadata:
+  name: prometheus-operator
+spec:
+  name: prometheus-operator
+  namespace: openshift-monitoring
+  channel: stable
+  autoUpgrade: true
+  webhookURL: https://hooks.slack.com/services/...
+```
+
+### `OperatorUpgradeRequest`
+
+```yaml
+apiVersion: lifecycle.tldr.cloud/v1alpha1
+kind: OperatorUpgradeRequest
+metadata:
+  name: prometheus-upgrade
+spec:
+  operatorName: prometheus-operator
+  namespace: openshift-monitoring
+  targetCSV: prometheus-operator.v0.72.0
+```
+
+---
+
+## 🔧 CLI (oc-lifecycle)
+
+```bash
+oc-lifecycle register prometheus-operator --channel stable
+oc-lifecycle list
+oc-lifecycle upgrade prometheus-operator --to v0.72.0
+```
+
+---
+
+## 🧪 Vývoj a testování
+
+```bash
 make install
+make run
 ```
 
-**Deploy the Manager to the cluster with the image specified by `IMG`:**
+---
 
-```sh
-make deploy IMG=<some-registry>/lifecycle-operator:tag
+## 📦 Build operátoru jako image
+
+```bash
+make docker-build docker-push IMG=quay.io/youruser/lifecycle-operator:latest
 ```
 
-> **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
-privileges or be logged in as admin.
+---
 
-**Create instances of your solution**
-You can apply the samples (examples) from the config/sample:
+## 📬 Webhook JSON
 
-```sh
-kubectl apply -k config/samples/
+```json
+{
+  "operator": "prometheus-operator",
+  "current": "v0.71.0",
+  "latest": "v0.72.0",
+  "message": "New version available"
+}
 ```
 
->**NOTE**: Ensure that the samples has default values to test it out.
+---
 
-### To Uninstall
-**Delete the instances (CRs) from the cluster:**
+## 📃 Licence
 
-```sh
-kubectl delete -k config/samples/
-```
-
-**Delete the APIs(CRDs) from the cluster:**
-
-```sh
-make uninstall
-```
-
-**UnDeploy the controller from the cluster:**
-
-```sh
-make undeploy
-```
-
-## Project Distribution
-
-Following are the steps to build the installer and distribute this project to users.
-
-1. Build the installer for the image built and published in the registry:
-
-```sh
-make build-installer IMG=<some-registry>/lifecycle-operator:tag
-```
-
-NOTE: The makefile target mentioned above generates an 'install.yaml'
-file in the dist directory. This file contains all the resources built
-with Kustomize, which are necessary to install this project without
-its dependencies.
-
-2. Using the installer
-
-Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project, i.e.:
-
-```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/lifecycle-operator/<tag or branch>/dist/install.yaml
-```
-
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
-
-**NOTE:** Run `make help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
-
-## License
-
-Copyright 2025.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
+MIT © 2024 [Stepan Kutaj](https://github.com/tldr-it-stepankutaj)
