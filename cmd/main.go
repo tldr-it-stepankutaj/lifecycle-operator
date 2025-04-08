@@ -19,6 +19,7 @@ package main
 import (
 	"crypto/tls"
 	"flag"
+	"fmt"
 	"os"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -45,6 +46,18 @@ var (
 	setupLog = ctrl.Log.WithName("setup")
 )
 
+var (
+	Version   = "dev"
+	GitCommit = "none"
+	BuildTime = "unknown"
+)
+
+func printVersion() {
+	fmt.Printf("Version:   %s\n", Version)
+	fmt.Printf("GitCommit: %s\n", GitCommit)
+	fmt.Printf("BuildTime: %s\n", BuildTime)
+}
+
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
@@ -53,6 +66,11 @@ func init() {
 }
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "version" {
+		printVersion()
+		return
+	}
+
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string

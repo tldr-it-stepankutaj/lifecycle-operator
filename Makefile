@@ -130,8 +130,8 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 ##@ Build
 
 .PHONY: build
-build: manifests generate fmt vet ## Build manager binary.
-	go build -o bin/manager cmd/main.go
+build: manifests generate fmt vet ## Build manager binary with version info.
+	go build -ldflags="-X 'main.Version=$(VERSION)' -X 'main.GitCommit=$(shell git rev-parse --short HEAD)' -X 'main.BuildTime=$(shell date -u +%Y-%m-%dT%H:%M:%SZ)'" -o bin/manager cmd/main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.

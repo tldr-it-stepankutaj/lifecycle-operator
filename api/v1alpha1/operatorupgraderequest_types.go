@@ -15,6 +15,8 @@ type OperatorUpgradeRequestStatus struct {
 	Message string `json:"message,omitempty"`
 }
 
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 type OperatorUpgradeRequest struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -23,6 +25,7 @@ type OperatorUpgradeRequest struct {
 	Status OperatorUpgradeRequestStatus `json:"status,omitempty"`
 }
 
+// +kubebuilder:object:root=true
 type OperatorUpgradeRequestList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
