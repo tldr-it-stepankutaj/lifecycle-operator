@@ -1,4 +1,4 @@
-# Detaily fungování: Operator Lifecycle Operator
+# 🧠 Detaily fungování: Operator Lifecycle Operator
 
 Tento operátor je navržen jako centrální správce životního cyklu operátorů běžících v OpenShift clusteru. Pomáhá zautomatizovat a zpřehlednit správu verzí jednotlivých operátorů nasazených pomocí OLM (Operator Lifecycle Manager).
 
@@ -61,6 +61,52 @@ Pokud je nastavena `webhookURL`, odešle JSON payload s informací o nové verzi
 ```bash
 oc-lifecycle register prometheus-operator --channel stable
 oc-lifecycle upgrade prometheus-operator --to v0.72.1
+oc-lifecycle list
+```
+
+---
+
+## 🧰 Sestavení CLI nástroje
+
+```bash
+make build
+./bin/oc-lifecycle version
+```
+
+> `Makefile` již obsahuje verzi sestavení (`VERSION`), commit (`GitCommit`) a čas sestavení (`BuildTime`) pomocí `ldflags`.
+
+---
+
+## 🚀 Build a nasazení operátoru
+
+### 1. Vytvoř binárku:
+```bash
+make build
+```
+
+### 2. Sestav image a pushni ji:
+```bash
+make docker-build IMG=quay.io/tvoje-jmeno/lifecycle-operator:0.0.1
+make docker-push IMG=quay.io/tvoje-jmeno/lifecycle-operator:0.0.1
+```
+
+### 3. Generuj bundle:
+```bash
+make bundle VERSION=0.0.1
+make bundle-build
+make bundle-push
+```
+
+### 4. Vytvoř katalog:
+```bash
+make catalog-build
+make catalog-push
+```
+
+### 5. Nasazení CRDs a operátoru:
+```bash
+make install
+make deploy IMG=quay.io/tvoje-jmeno/lifecycle-operator:0.0.1
 ```
 
 ---
