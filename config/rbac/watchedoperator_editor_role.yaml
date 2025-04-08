@@ -1,0 +1,27 @@
+# permissions for end users to edit watchedoperators.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: lifecycle-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: watchedoperator-editor-role
+rules:
+- apiGroups:
+  - lifecycle.tldr.cloud
+  resources:
+  - watchedoperators
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - lifecycle.tldr.cloud
+  resources:
+  - watchedoperators/status
+  verbs:
+  - get

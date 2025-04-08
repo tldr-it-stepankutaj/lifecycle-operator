@@ -1,0 +1,5 @@
+## Append samples of your project ##
+resources:
+- lifecycle_v1alpha1_watchedoperator.yaml
+- lifecycle_v1alpha1_operatorupgraderequest.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

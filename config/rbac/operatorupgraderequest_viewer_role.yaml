@@ -1,0 +1,23 @@
+# permissions for end users to view operatorupgraderequests.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: lifecycle-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: operatorupgraderequest-viewer-role
+rules:
+- apiGroups:
+  - lifecycle.tldr.cloud
+  resources:
+  - operatorupgraderequests
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - lifecycle.tldr.cloud
+  resources:
+  - operatorupgraderequests/status
+  verbs:
+  - get
